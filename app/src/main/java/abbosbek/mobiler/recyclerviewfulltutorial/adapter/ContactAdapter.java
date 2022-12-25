@@ -15,9 +15,11 @@ import abbosbek.mobiler.recyclerviewfulltutorial.model.Contact;
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ItemHolder> {
 
     private List<Contact> contactList;
+    private OnClickListener listener;
 
-    public ContactAdapter(List<Contact> contactList) {
+    public ContactAdapter(List<Contact> contactList, OnClickListener listener) {
         this.contactList = contactList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -31,8 +33,17 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ItemHold
 
     @Override
     public void onBindViewHolder(@NonNull ContactAdapter.ItemHolder holder, int position) {
-        holder.binding.tvName.setText(contactList.get(position).getName());
-        holder.binding.tvPassword.setText(contactList.get(position).getPassword());
+
+        Contact contact = contactList.get(position);
+
+        holder.binding.tvName.setText(contact.getName());
+        holder.binding.tvPassword.setText(contact.getPassword());
+        
+        holder.itemView.setOnClickListener(view -> listener.onClick(contact,position));
+
+        holder.binding.btnDelete.setOnClickListener(view -> listener.onDelete(contact,position));
+        holder.binding.btnEdit.setOnClickListener(view -> listener.onEdit(contact,position));
+
     }
 
     @Override
@@ -48,5 +59,11 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ItemHold
             super(binding.getRoot());
             this.binding = binding;
         }
+    }
+
+    public interface OnClickListener{
+        void onClick(Contact contact,int position);
+        void onDelete(Contact contact,int position);
+        void onEdit(Contact contact,int position);
     }
 }
