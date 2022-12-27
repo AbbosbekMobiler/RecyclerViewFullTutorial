@@ -5,6 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -12,15 +14,15 @@ import java.util.List;
 import abbosbek.mobiler.recyclerviewfulltutorial.databinding.ItemLayoutBinding;
 import abbosbek.mobiler.recyclerviewfulltutorial.model.Contact;
 
-public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ItemHolder> {
+public class ContactAdapter extends ListAdapter<Contact,ContactAdapter.ItemHolder> {
 
-    private List<Contact> contactList;
     private OnClickListener listener;
 
-    public ContactAdapter(List<Contact> contactList, OnClickListener listener) {
-        this.contactList = contactList;
+    public ContactAdapter(OnClickListener listener) {
+        super(new MyDiffUtil());
         this.listener = listener;
     }
+
 
     @NonNull
     @Override
@@ -34,22 +36,15 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ItemHold
     @Override
     public void onBindViewHolder(@NonNull ContactAdapter.ItemHolder holder, int position) {
 
-        Contact contact = contactList.get(position);
+        Contact contact = getItem(position);
 
         holder.binding.tvName.setText(contact.getName());
         holder.binding.tvPassword.setText(contact.getPassword());
         
-        holder.itemView.setOnClickListener(view -> listener.onClick(contact,position));
-
-        holder.binding.btnDelete.setOnClickListener(view -> listener.onDelete(contact,position));
-        holder.binding.btnEdit.setOnClickListener(view -> listener.onEdit(contact,position));
+        holder.itemView.setOnClickListener(view -> listener.onDelete(contact,position));
 
     }
 
-    @Override
-    public int getItemCount() {
-        return contactList.size();
-    }
 
     public static class ItemHolder extends RecyclerView.ViewHolder{
 
@@ -62,8 +57,19 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ItemHold
     }
 
     public interface OnClickListener{
-        void onClick(Contact contact,int position);
         void onDelete(Contact contact,int position);
-        void onEdit(Contact contact,int position);
+    }
+
+    public static class MyDiffUtil extends DiffUtil.ItemCallback<Contact>{
+
+        @Override
+        public boolean areItemsTheSame(@NonNull Contact oldItem, @NonNull Contact newItem) {
+            return oldItem.getPassword().equals(newItem.getPassword());
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Contact oldItem, @NonNull Contact newItem) {
+            return oldItem.equals(newItem);
+        }
     }
 }
